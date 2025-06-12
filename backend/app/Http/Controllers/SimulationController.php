@@ -48,6 +48,10 @@ class SimulationController extends Controller
             $nextWeek->save();
         }
 
+        if (!$nextWeek) {
+            return response(['message' => 'Season finished'], 200);
+        }
+
         return $response;
     }
 

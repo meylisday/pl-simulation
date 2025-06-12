@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Team extends Model
 {
+    use HasFactory;
+
+    protected $fillable = ['name', 'strength'];
+
     public function homeMatches(): HasMany
     {
         return $this->hasMany(MatchGame::class, 'home_team_id');
