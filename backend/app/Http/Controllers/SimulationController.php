@@ -39,16 +39,14 @@ class SimulationController extends Controller
 
         $response = $this->simulateWeek($week->id);
 
+        $week->is_current = false;
+        $week->save();
+
         $nextWeek = Week::where('number', '>', $week->number)->orderBy('number')->first();
         if ($nextWeek) {
-            $week->is_current = false;
-            $week->save();
-
             $nextWeek->is_current = true;
             $nextWeek->save();
-        }
-
-        if (!$nextWeek) {
+        } else {
             return response(['message' => 'Season finished'], 200);
         }
 

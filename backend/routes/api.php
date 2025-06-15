@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StandingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\WeekController;
@@ -25,3 +26,5 @@ Route::prefix('/simulate')->group(function () {
 });
 
 Route::get('/predictions', [PredictionController::class, 'index']);
+
+Route::get('/standings', [StandingsController::class, 'index']);

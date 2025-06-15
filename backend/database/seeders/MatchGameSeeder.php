@@ -15,28 +15,40 @@ class MatchGameSeeder extends Seeder
     public function run(): void
     {
         $league = League::first();
-        $weeks = Week::all();
         $teams = Team::all();
+        $teamCount = $teams->count();
 
-        $teamPairs = $teams->crossJoin($teams)
-            ->filter(fn ($pair) => $pair[0]->id !== $pair[1]->id)
-            ->values()
-            ->unique(function ($pair) {
-                return collect([$pair[0]->id, $pair[1]->id])->sort()->join('-');
-            });
+        $rounds = $teamCount - 1;
+        $half = $teamCount / 2;
 
-        $weekIndex = 0;
+        for ($i = 1; $i <= $rounds; $i++) {
+            Week::firstOrCreate(['number' => $i], ['is_current' => $i === 1]);
+        }
 
-        foreach ($teamPairs as $pair) {
-            MatchGame::create([
-                'league_id' => $league->id,
-                'week_id' => $weeks[$weekIndex % $weeks->count()]->id,
-                'home_team_id' => $pair[0]->id,
-                'away_team_id' => $pair[1]->id,
-                'played' => false
-            ]);
+        $weeks = Week::orderBy('number')->get();
 
-            $weekIndex++;
+        $teamIds = $teams->pluck('id')->toArray();
+
+        for ($round = 0; $round < $rounds; $round++) {
+            for ($i = 0; $i < $half; $i++) {
+                $homeIndex = ($round + $i) % ($teamCount - 1);
+                $awayIndex = ($teamCount - 1 - $i + $round) % ($teamCount - 1);
+
+                if ($i === 0) {
+                    $awayIndex = $teamCount - 1;
+                }
+
+                $homeId = $teamIds[$homeIndex];
+                $awayId = $teamIds[$awayIndex];
+
+                MatchGame::create([
+                    'league_id' => $league->id,
+                    'week_id' => $weeks[$round]->id,
+                    'home_team_id' => $homeId,
+                    'away_team_id' => $awayId,
+                    'played' => false
+                ]);
+            }
         }
     }
 }
